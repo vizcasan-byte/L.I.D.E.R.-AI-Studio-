@@ -1,0 +1,108 @@
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Colors from original logo-katya.png
+const NAVY = '#09243a';
+const GOLD = '#d7ad32';
+const WHITE = '#ffffff';
+
+// Dimensions: 1200 x 340 (Standard 3.5:1 ratio for crisp retina display)
+const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap');
+      .font-title {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-weight: 800;
+        font-size: 82px;
+        fill: ${NAVY};
+        letter-spacing: -1.8px;
+      }
+      .font-sub {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-weight: 500;
+        font-size: 50px;
+        fill: ${NAVY};
+        letter-spacing: -0.8px;
+      }
+      .font-tagline {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-weight: 600;
+        font-size: 32px;
+        fill: ${GOLD};
+        letter-spacing: 0.2px;
+      }
+    </style>
+  </defs>
+
+  <!-- KS Monogram Symbol -->
+  <g transform="translate(60, 45)">
+    <!-- 1. Gold Bottom-Left Vertical Block (lower segment of K left stem) -->
+    <rect x="18" y="136" width="30" height="104" fill="${GOLD}" rx="3" />
+
+    <!-- 2. Gold Lower-Diagonal Branch of K -->
+    <polygon points="96,160 152,216 186,216 122,152" fill="${GOLD}" />
+    <polygon points="68,188 96,216 68,216" fill="${GOLD}" />
+
+    <!-- 3. Navy Left Vertical Stem (Upper part) -->
+    <rect x="18" y="24" width="30" height="98" fill="${NAVY}" rx="3" />
+
+    <!-- 4. Navy Main Inner Vertical Column of K -->
+    <rect x="62" y="24" width="30" height="216" fill="${NAVY}" rx="3" />
+
+    <!-- 5. Navy Upper Diagonal Branch of K -->
+    <polygon points="70,126 156,40 196,40 102,134" fill="${NAVY}" />
+
+    <!-- 6. Interlocking S Ribbon (Outer contours & geometric bends with white channels) -->
+    <!-- S Top Loop -->
+    <path d="M140 24 H228 C234 24 240 30 240 36 V92 C240 98 234 104 228 104 H134 V74 H210 V54 H140 V24 Z" fill="${NAVY}" />
+
+    <!-- White separation stroke around S crossing K -->
+    <rect x="52" y="100" width="130" height="38" fill="${WHITE}" />
+
+    <!-- S Center Crossing Bar -->
+    <path d="M58 106 H190 C194 106 198 110 198 114 V138 C198 142 194 146 190 146 H76 C72 146 68 142 68 138 V126 H58 Z" fill="${NAVY}" />
+
+    <!-- S Bottom Loop (enclosing the gold lower arm) -->
+    <path d="M110 146 H228 C234 146 240 152 240 158 V214 C240 220 234 226 228 226 H130 L92 188 L114 166 L144 196 H210 V176 H136 L110 146 Z" fill="${NAVY}" />
+
+    <!-- Bottom Base Line Return of S -->
+    <path d="M62 216 H150 V240 H62 Z" fill="${NAVY}" />
+  </g>
+
+  <!-- Typography Lockup -->
+  <g transform="translate(370, 40)">
+    <text x="0" y="92" class="font-title">Katya Sánchez</text>
+    <text x="0" y="162" class="font-sub">Mentora en IA &amp; EdTech</text>
+    <text x="0" y="218" class="font-tagline">IA que se aplica. Enseñanza que se transforma.</text>
+  </g>
+</svg>`;
+
+async function run() {
+  const publicDir = path.join(__dirname, '..', 'public');
+  const distDir = path.join(__dirname, '..', 'dist');
+
+  // 1. Write public/logo-katya.svg
+  fs.writeFileSync(path.join(publicDir, 'logo-katya.svg'), svgContent);
+  console.log('Wrote public/logo-katya.svg');
+
+  // 2. Render to public/logo-katya.png with high density
+  await sharp(Buffer.from(svgContent), { density: 300 })
+    .resize(1200, 340, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
+    .png({ quality: 100, compressionLevel: 9 })
+    .toFile(path.join(publicDir, 'logo-katya.png'));
+  console.log('Rendered public/logo-katya.png successfully');
+
+  if (fs.existsSync(distDir)) {
+    fs.copyFileSync(path.join(publicDir, 'logo-katya.png'), path.join(distDir, 'logo-katya.png'));
+    fs.copyFileSync(path.join(publicDir, 'logo-katya.svg'), path.join(distDir, 'logo-katya.svg'));
+    console.log('Copied to dist');
+  }
+}
+
+run().catch(console.error);

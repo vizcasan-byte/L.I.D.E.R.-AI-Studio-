@@ -1,0 +1,6 @@
+{
+  "name": "L.I.D.E.R. AI Studio | Katya Sánchez",
+  "description": "Estudio de creación de recursos educativos con IA y Método L.I.D.E.R. Diseña recursos imprimibles, interactivos con funcionalidad real y experiencias gamificadas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
